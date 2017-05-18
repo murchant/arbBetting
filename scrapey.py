@@ -24,6 +24,17 @@ def sFracToFloat(fracStr):
 		dec = float(fracStr) + 1
 		return dec
 
+#Odd as percentage
+def percentage(oddFloat):
+	return 100/oddFloat
+
+# Calcualte whether the created market is over/under arb, and if so....
+# ... return percentage
+def total(createdMarketList):
+	home = createdMarketList[0]
+	draw = createdMarketList[1]
+	away = createdMarketList[2]
+	return home+draw+away
 
 for i in range(2, 10):
 	home = '//*[@id="t1"]/tr[1]/td[' + str(i) +']/text()'
@@ -38,7 +49,9 @@ for i in range(2, 10):
 	drawOdd[bookieName[0]]=drawTeam[0]								
 	awayOdd[bookieName[0]]=awayTeam[0]
 	for x in homeOdd:
-		print x, homeOdd[x], sFracToFloat(homeOdd[x])								
+		testList = percentage(sFracToFloat(homeOdd[x]))
+		print x, homeOdd[x], drawOdd[x], awayOdd[x] 
+		print x, 'H:', homeOdd[x], 'D:', drawOdd[x], 'A:', awayOdd[x], percentage(sFracToFloat(homeOdd[x])), percentage(sFracToFloat(drawOdd[x])), percentage(sFracToFloat(awayOdd[x])) 							
 
 
 
