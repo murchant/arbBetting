@@ -4,7 +4,7 @@ import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-page = requests.get('https://www.oddschecker.com/football/english/premier-league/leicester-v-tottenham/winner', verify=False)
+page = requests.get('https://www.oddschecker.com/football/germany/bundesliga/borussia-monchengladbach-v-darmstadt/winner', verify=False)
 tree = html.fromstring(page.content)
 
 homeTeamName = tree.xpath('//*[@id="t1"]/tr[1]/td[1]/span[1]/@data-name')
@@ -46,11 +46,13 @@ def extractArbs(homes, draws, aways):
 				a=percentage(sFracToFloat(aways[z]))
 				#print total(h,d,a)
 				if total(h,d,a)<100:
+					print total(h,d,a)
 					arb[x]=h
 					arb[y]=d
 					arb[z]=a
 					arbs[count] = arb
 					count+=1
+
 
 
 for i in range(2, 10):
@@ -62,15 +64,21 @@ for i in range(2, 10):
 	drawTeam = tree.xpath(draw)
 	awayTeam = tree.xpath(away)
 	bookieName = tree.xpath(bookie)
-	homeOdd[bookieName[0]]=homeTeam[0]								
-	drawOdd[bookieName[0]]=drawTeam[0]								
-	awayOdd[bookieName[0]]=awayTeam[0]
+	if len(homeTeam)>0:
+		homeOdd[bookieName[0]]=homeTeam[0]
+	if len(drawTeam)>0:	
+		drawOdd[bookieName[0]]=drawTeam[0]
+	if len(awayTeam)>0:								
+		awayOdd[bookieName[0]]=awayTeam[0]
 
 for x in homeOdd:
 	# 	testList = percentage(sFracToFloat(homeOdd[x]))
 	# 	print x, homeOdd[x], drawOdd[x], awayOdd[x] 
 	# 	print x, 'H:', homeOdd[x], 'D:', drawOdd[x], 'A:', awayOdd[x], percentage(sFracToFloat(homeOdd[x])), percentage(sFracToFloat(drawOdd[x])), percentage(sFracToFloat(awayOdd[x]))
 	myArbDictionary = extractArbs(homeOdd, drawOdd, awayOdd)
+print homeTeamName, 'vs', awayName
+
+
 
 
 
