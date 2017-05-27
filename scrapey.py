@@ -15,7 +15,7 @@ awayName = tree.xpath('//*[@id="t1"]/tr[3]/td[1]/span[1]/@data-name')
 homeOdd = {}						#dictionary containing all home odds + bookie
 drawOdd = {}						#dictionary containing all draw odds + bookie
 awayOdd = {}						#dictionary containing all away odds + bookie
-
+bookieParam = {}
 #Changes string representation of odds into decimal odds
 def sFracToFloat(fracStr):
 	if '/' in fracStr:
@@ -37,7 +37,7 @@ def total(h, d, a):
 
 #runs through all combinations of home, draw, away, and extracts all....
 #... combinations which are arbs, puts them in dict and returns dict.
-def extractArbs(homes, draws, aways, treeT):
+def extractArbs(homes, draws, aways, treeT, fixture):
 	
 	arbs = {}
 	count=0
@@ -48,10 +48,11 @@ def extractArbs(homes, draws, aways, treeT):
 				h=percentage(sFracToFloat(homes[x]))
 				d=percentage(sFracToFloat(draws[y]))
 				a=percentage(sFracToFloat(aways[z]))
+				
 				#print total(h,d,a)
 				if total(h,d,a)<100:
 					#print total(h,d,a)
-					arb = [homes[x], homes[y], homes[z]]
+					arb = [fixture[0]+' vs '+fixture[1] + '|'+x+': '  + homes[x],  y+': ' + draws[y], z+': '+aways[z]]
 					# arb[0]=homes[x]
 					# arb[1]=draws[y]
 					# arb[2]=aways[z]
@@ -71,6 +72,7 @@ for i in range(3, 10):
 		treeT = html.fromstring(page.content)
 		homeTeamName = treeT.xpath('//*[@id="t1"]/tr[1]/td[1]/span[1]/@data-name')
 		awayName = treeT.xpath('//*[@id="t1"]/tr[3]/td[1]/span[1]/@data-name')
+		fixture = homeTeamName+awayName
 		#print homeTeamName, 'vs', awayName
 #for loop to check each odds for a given match with different bookmakers
 	for i in range(2, 10):
@@ -93,12 +95,12 @@ for i in range(3, 10):
 			# 	testList = percentage(sFracToFloat(homeOdd[x]))
 			# 	print x, homeOdd[x], drawOdd[x], awayOdd[x] 
 			# 	print x, 'H:', homeOdd[x], 'D:', drawOdd[x], 'A:', awayOdd[x], percentage(sFracToFloat(homeOdd[x])), percentage(sFracToFloat(drawOdd[x])), percentage(sFracToFloat(awayOdd[x]))
-			myArbDictionary = extractArbs(homeOdd, drawOdd, awayOdd, treeT)
+			myArbDictionary = extractArbs(homeOdd, drawOdd, awayOdd, treeT,fixture)
 
-		## Printing of the arb dwictionary, may be wrong as you wrote it wwithout internet or testing!!!!!!!!!!!!!!!
+		# Printing of the arb dwictionary, may be wrong as you wrote it wwithout internet or testing!!!!!!!!!!!!!!!
 		for y in myArbDictionary:
 			print y, myArbDictionary[y]
-			print '////////////////////////////////////////////////////////////////////////'
+			print '    '
 
 
 
