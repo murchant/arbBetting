@@ -4,18 +4,15 @@ import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-page = requests.get('https://www.oddschecker.com/football/germany/bundesliga/borussia-monchengladbach-v-darmstadt/winner', verify=False)
-tree = html.fromstring(page.content)
 
-page2 = page = requests.get('https://www.oddschecker.com/football/football-coupons/major-leagues-cups', verify=False)
+page2 = page = requests.get('https://www.oddschecker.com/tennis', verify=False)
 tree2 = html.fromstring(page2.content)
 
-homeTeamName = tree.xpath('//*[@id="t1"]/tr[1]/td[1]/span[1]/@data-name')
-awayName = tree.xpath('//*[@id="t1"]/tr[3]/td[1]/span[1]/@data-name')
 homeOdd = {}						#dictionary containing all home odds + bookie
 drawOdd = {}						#dictionary containing all draw odds + bookie
 awayOdd = {}						#dictionary containing all away odds + bookie
 bookieParam = {}
+
 #Changes string representation of odds into decimal odds
 def sFracToFloat(fracStr):
 	if '/' in fracStr:
@@ -38,9 +35,10 @@ def total(h, d, a):
 #runs through all combinations of home, draw, away, and extracts all....
 #... combinations which are arbs, puts them in dict and returns dict.
 def extractArbs(homes, draws, aways, treeT, fixture):
-	print "new"
+	
 	arbs = {}
 	count=0
+
 	for x in homes:
 		for y in draws:
 			for z in aways:
@@ -51,9 +49,7 @@ def extractArbs(homes, draws, aways, treeT, fixture):
 				#print total(h,d,a)
 				if total(h,d,a)<100:
 					#print total(h,d,a)
-
-					# print aways[z],' ', fixture[0], z
-					arb = [fixture[0]+' vs '+fixture[1] + ' | '+x+': '  + homes[x],  y+': ' + draws[y], z+': '+aways[z]+ '     '+str(total(h,d,a))]
+					arb = [fixture[0]+' vs '+fixture[1] + ' | '+x+': '  + homes[x],  y+': ' + draws[y], z+': '+aways[z]]
 					# arb[0]=homes[x]
 					# arb[1]=draws[y]
 					# arb[2]=aways[z]
@@ -63,7 +59,7 @@ def extractArbs(homes, draws, aways, treeT, fixture):
 	return arbs
 
 myArbDictionary = {}
-for i in range(3, 15):
+for i in range(3, 10):
 	linkName = '//*[@id="fixtures"]/div/table/tbody/tr['+str(i)+']/td[5]/a/@href'
 	link = tree2.xpath(linkName)
 	#print link
@@ -74,38 +70,35 @@ for i in range(3, 15):
 		homeTeamName = treeT.xpath('//*[@id="t1"]/tr[1]/td[1]/span[1]/@data-name')
 		awayName = treeT.xpath('//*[@id="t1"]/tr[3]/td[1]/span[1]/@data-name')
 		fixture = homeTeamName+awayName
-			
-		#for loop to check each odds for a given match with different bookmakers
-		for i in range(2, 10):
-			home = '//*[@id="t1"]/tr[1]/td[' + str(i) +']/text()'    #home to win odds
-			draw = '//*[@id="t1"]/tr[2]/td['+ str(i) +']/text()'	 #draw odds
-			away = '//*[@id="t1"]/tr[3]/td['+ str(i) +']/text()'	 #away to win odds
-			bookie = '//*[@id="oddsTableContainer"]/table/thead/tr[4]/td['+str(i)+']/aside/a/@title'
-			homeTeam = treeT.xpath(home)
-			drawTeam = treeT.xpath(draw)
-			awayTeam = treeT.xpath(away)
-			bookieName = treeT.xpath(bookie)
-			if bookieName is not 'Betfred':
-				if len(homeTeam)>0:
-					homeOdd[bookieName[0]]=homeTeam[0]
-				if len(drawTeam)>0:	
-					drawOdd[bookieName[0]]=drawTeam[0]
-				if len(awayTeam)>0:								
-					awayOdd[bookieName[0]]=awayTeam[0]
+		#print homeTeamName, 'vs', awayName
+#for loop to check each odds for a given match with different bookmakers
+	for i in range(2, 10):
+		home = '//*[@id="t1"]/tr[1]/td[' + str(i) +']/text()'
+		draw = '//*[@id="t1"]/tr[2]/td['+ str(i) +']/text()'
+		away = '//*[@id="t1"]/tr[3]/td['+ str(i) +']/text()'
+		bookie = '//*[@id="oddsTableContainer"]/table/thead/tr[4]/td['+str(i)+']/aside/a/@title'
+		homeTeam = treeT.xpath(home)
+		drawTeam = treeT.xpath(draw)
+		awayTeam = treeT.xpath(away)
+		bookieName = treeT.xpath(bookie)
+		if len(homeTeam)>0:
+			homeOdd[bookieName[0]]=homeTeam[0]
+		if len(drawTeam)>0:	
+			drawOdd[bookieName[0]]=drawTeam[0]
+		if len(awayTeam)>0:								
+			awayOdd[bookieName[0]]=awayTeam[0]
 
-			# for x in homeOdd:
-			# 	print homeOdd[x], fixture[0]
-			# 	print awayOdd[x]
-				# 	testList = percentage(sFracToFloat(homeOdd[x]))
-				# 	print x, homeOdd[x], drawOdd[x], awayOdd[x] 
-				# 	print x, 'H:', homeOdd[x], 'D:', drawOdd[x], 'A:', awayOdd[x], percentage(sFracToFloat(homeOdd[x])), percentage(sFracToFloat(drawOdd[x])), percentage(sFracToFloat(awayOdd[x]))
-		myArbDictionary = extractArbs(homeOdd, drawOdd, awayOdd, treeT,fixture)
+		for x in homeOdd:
+			# 	testList = percentage(sFracToFloat(homeOdd[x]))
+			# 	print x, homeOdd[x], drawOdd[x], awayOdd[x] 
+			# 	print x, 'H:', homeOdd[x], 'D:', drawOdd[x], 'A:', awayOdd[x], percentage(sFracToFloat(homeOdd[x])), percentage(sFracToFloat(drawOdd[x])), percentage(sFracToFloat(awayOdd[x]))
+			myArbDictionary = extractArbs(homeOdd, drawOdd, awayOdd, treeT,fixture)
 
+		# Printing of the arb dwictionary, may be wrong as you wrote it wwithout internet or testing!!!!!!!!!!!!!!!
 		for y in myArbDictionary:
 			print y, myArbDictionary[y]
 			print '    '
-		
-			
+
 
 
 
